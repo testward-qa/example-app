@@ -1,5 +1,5 @@
 # Link this app repo to its separate automation repo(s).
-# DiffSense checks these for specs that break when this PR changes
+# Testward checks these for specs that break when this PR changes
 # selectors / routes / endpoints they depend on.
 automation_repos:
   - diffsense-ai/example-e2e
