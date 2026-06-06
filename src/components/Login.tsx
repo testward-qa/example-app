@@ -1,10 +1,10 @@
 export function Login() {
-  const REDIRECT_AFTER_LOGIN = '/dashboard'
+  const REDIRECT_AFTER_LOGIN = '/home'
   return (
     <form onSubmit={() => (location.href = REDIRECT_AFTER_LOGIN)}>
       <input id="email" type="email" placeholder="Email" />
       <input id="password" type="password" placeholder="Password" />
-      <button data-testid="login-btn" type="submit">Log in</button>
+      <button data-testid="signin-btn" type="submit">Sign in</button>
     </form>
   )
 }
