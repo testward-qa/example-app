@@ -2,4 +2,4 @@
 # Testward checks these for specs that break when this PR changes
 # selectors / routes / endpoints they depend on.
 automation_repos:
-  - diffsense-ai/example-e2e
+  - testward-qa/example-e2e
