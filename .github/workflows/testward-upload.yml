@@ -1,0 +1,39 @@
+name: Upload test results to Testward
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Produce JUnit results (synthetic for verification)
+        run: |
+          cat > junit.xml <<'XML'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <testsuite name="example-app unit" tests="3" failures="1" time="4.2">
+            <testcase classname="Login" name="renders login form" file="src/components/Login.test.tsx" time="1.1"/>
+            <testcase classname="Login" name="submits credentials" file="src/components/Login.test.tsx" time="1.6">
+              <failure message="expected /home, received /dashboard">redirect assertion failed</failure>
+            </testcase>
+            <testcase classname="Login" name="shows validation errors" file="src/components/Login.test.tsx" time="1.5"/>
+          </testsuite>
+          XML
+          echo "junit.xml written"
+
+      - name: Upload to Testward via OIDC
+        run: |
+          TOKEN=$(curl -sH "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=testward" | jq -r '.value')
+          echo "OIDC token minted: $([ -n "$TOKEN" ] && [ "$TOKEN" != "null" ] && echo yes || echo NO)"
+          CODE=$(curl -s -o /tmp/resp.json -w "%{http_code}" -X POST \
+            https://diffsense-api.fly.dev/api/test-results \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/xml" \
+            --data-binary @junit.xml)
+          echo "TESTWARD_UPLOAD_STATUS=$CODE"
+          echo "TESTWARD_UPLOAD_BODY=$(cat /tmp/resp.json)"
